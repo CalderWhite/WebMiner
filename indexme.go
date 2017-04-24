@@ -222,20 +222,19 @@ func digestTree(tree *html.Node) []string {
 	})
 	var text string
 	for i := 0; i < len(textNodez); i++ {
-		text += textNodez[i].Data
+		ct := textNodez[i].Data
+		// whitespace stripping inside element, so we can add spaces outside of it
+		for {
+			ct = strings.Replace(ct, tab+tab, tab, -1)
+			ct = strings.Replace(ct, space+space, space, -1)
+			if !strings.Contains(ct, tab+tab) && !strings.Contains(ct, space+space) {
+				break
+			}
+		}
+		ct += " "
+		text += ct
 	}
 	// algorithm (cont.)
-	//body, found := scrape.Find(tree, scrape.ByTag(atom.Body))
-	// mini-condition algorithm
-
-	// whitespace stripping
-	for {
-		text = strings.Replace(text, tab+tab, tab, -1)
-		text = strings.Replace(text, space+space, space, -1)
-		if !strings.Contains(text, tab+tab) && !strings.Contains(text, space+space) {
-			break
-		}
-	}
 	text = strings.Replace(text, "\n", "", -1)
 	// worst way to remove this
 	/*
@@ -312,10 +311,10 @@ func evaluateDomain(url string) (string, error) {
 	return "", nil
 }
 func test() {
-	domain := "communitech.ca"
-	//var domain string
-	//fmt.Print("Enter a domain:")
-	//fmt.Scanf("%s", &domain)
+	//domain := "communitech.ca"
+	var domain string
+	fmt.Print("Enter a domain:")
+	fmt.Scanf("%s", &domain)
 	url := "http://" + domain
 	// screw security ^^
 	_, err := evaluateDomain(url)
