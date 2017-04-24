@@ -21,6 +21,10 @@ var alphabet string = "abcdefghijklmnopqrstuvwxyz1234567890"
 var tab string = "	"
 var space string = " "
 
+// stuff non keyword stuff
+var excludes = map[string]bool{"nav": true, "head": true}
+var ex_clid []string = []string{"menu"}
+
 func split_with_specials(s string) []string {
 	// custom split algorithm
 	end := []string{}
@@ -184,50 +188,46 @@ func digestTree(tree *html.Node) []string {
 	for node := 0; node < len(stylez); node++ {
 		stylez[node].Parent.RemoveChild(stylez[node])
 	}
-	// selectively remove <a>,<nav> tags since they usually reside in the top bar/half of the text,
-	// which is where we (usually) pull our data from.
-	// We're trying to strip away "About us", "Contact Us", "Sign Up", etc.
-	// the following method is designed to eliminate the top bar, simply by
-	// finding the daisy chain of links.
 	textNodez := scrape.FindAll(tree, func(n *html.Node) bool {
 		if n.Type == html.TextNode {
 			cn := n
 			ml := []string{}
 			for {
 				if cn.Parent == nil {
-					fmt.Println(ml)
+					//fmt.Println(ml)
 					return true
 				}
-				if cn.Parent.Data == "nav" {
-					ml = append(ml, "nav")
-					fmt.Println(ml)
+				if excludes[cn.Parent.Data] {
+					ml = append(ml, strings.ToUpper(cn.Parent.Data))
+					if len(cn.Attr) > 0 {
+						//fmt.Println(append(ml, cn.Data), cn.Attr)
+					} else {
+						//fmt.Print(append(ml, cn.Data), cn.Attr)
+						//fmt.Println("**")
+					}
 					return false
-				} else {
-					ml = append(ml, cn.Data)
-					cn = cn.Parent
+				} else if len(cn.Attr) > 0 {
+					for i := 0; i < len(cn.Attr); i++ {
+						// the bad and lazy way:
+						if strings.Contains(strings.ToLower(cn.Attr[i].Val), "menu") {
+							return false
+						}
+					}
 				}
+				ml = append(ml, cn.Data)
+				cn = cn.Parent
 			}
 		}
 		return false
 	})
+	var text string
 	for i := 0; i < len(textNodez); i++ {
-		//fmt.Println(textNodez[i].Data)
+		text += textNodez[i].Data
 	}
 	// algorithm (cont.)
-	body, found := scrape.Find(tree, scrape.ByTag(atom.Body))
-	var text string
+	//body, found := scrape.Find(tree, scrape.ByTag(atom.Body))
 	// mini-condition algorithm
-	if found {
-		text = scrape.Text(body)
-	} else {
-		title, found := scrape.Find(tree, scrape.ByTag(atom.Title))
-		if found {
-			text = scrape.Text(tree)
-			text = strings.Replace(text, "", scrape.Text(title), 1)
-		} else {
-			text = scrape.Text(tree)
-		}
-	}
+
 	// whitespace stripping
 	for {
 		text = strings.Replace(text, tab+tab, tab, -1)
@@ -236,6 +236,7 @@ func digestTree(tree *html.Node) []string {
 			break
 		}
 	}
+	text = strings.Replace(text, "\n", "", -1)
 	// worst way to remove this
 	/*
 		navz := scrape.FindAll(*tree, scrape.ByTag(atom.Nav))
@@ -296,14 +297,16 @@ func evaluateDomain(url string) (string, error) {
 	resp.Body.Close()
 	// begin algorithm
 	// use pointers to maximize effieciency
-	//keywords := getKeywords(&tree)
+	keywords := getKeywords(&tree)
 	phrases := digestTree(tree)
-	for i := 0; i < len(phrases); i++ {
-		//fmt.Println("{{" + phrases[i] + "}}")
-	}
-	//desc := findTagLine(keywords, phrases)
+	//for i := 0; i < len(phrases); i++ {
+	//	fmt.Println("{{" + phrases[i] + "}}")
+	//}
+	desc := findTagLine(keywords, phrases)
 	t2 := time.Now()
-	//fmt.Println(desc)
+	fmt.Println("------------------------------------------------------------")
+	fmt.Println("Result:")
+	fmt.Println(desc)
 	fmt.Println("------------------------------------------------------------")
 	fmt.Printf("Finished:\nRequest Time: %v\nProcessing Time: %v\nTotal: %v\n", t1.Sub(t0), t2.Sub(t1), t2.Sub(t0))
 	return "", nil
