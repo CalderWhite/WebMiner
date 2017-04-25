@@ -158,23 +158,42 @@ func smart_split(text string) []string {
 				split = append(split, text[ci:])
 			}
 		} else if (lowest == 0 && ci != 0) || (lowest != 0 && ci == 0) || (lowest != 0 && ci != 0) {
-			if string(text[ci+lowest-1]) == " " || string(text[ci+lowest+1]) == " " {
-				if keep {
-					split = append(split, text[oi:lowest+ci])
-					keep = false
+			if lowest+ci <= len(text)+1 {
+				if string(text[ci+lowest+2]) == strings.ToUpper(string(text[ci+lowest+2])) {
+					if string(text[ci+lowest-1]) == " " || string(text[ci+lowest+1]) == " " {
+						if keep {
+							split = append(split, text[oi:lowest+ci+1])
+							keep = false
+						} else {
+							split = append(split, text[ci:lowest+ci])
+						}
+					} else {
+						if !keep {
+							oi = ci
+						}
+						keep = true
+					}
 				} else {
-					split = append(split, text[ci:lowest+ci])
+					if !keep {
+						oi = ci
+					}
+					keep = true
 				}
 			} else {
-				if !keep {
-					oi = ci
+				if keep {
+					split = append(split, text[oi:])
+					keep = false
+				} else {
+					split = append(split, text[ci:])
 				}
-				keep = true
 			}
 		}
 		// new
 		// +2 : 1 for the punctuation, 1 for the following space.
 		ci = ci + lowest + 2
+	}
+	for i := 0; i < len(split); i++ {
+		fmt.Println("{{" + split[i] + "}}")
 	}
 	return split
 }
@@ -237,13 +256,6 @@ func digestTree(tree *html.Node) []string {
 	// algorithm (cont.)
 	text = strings.Replace(text, "\n", "", -1)
 	// worst way to remove this
-	/*
-		navz := scrape.FindAll(*tree, scrape.ByTag(atom.Nav))
-		for nav := 0; nav < len(navz); nav++ {
-			fmt.Println("[" + scrape.Text(navz[nav]) + "]")
-			text = strings.Replace(text, scrape.Text(navz[nav]), "", -1)
-		}
-	*/
 	// split by punctuation
 	return smart_split(text)
 }
@@ -311,10 +323,11 @@ func evaluateDomain(url string) (string, error) {
 	return "", nil
 }
 func test() {
-	//domain := "communitech.ca"
-	var domain string
-	fmt.Print("Enter a domain:")
-	fmt.Scanf("%s", &domain)
+	//domain := "pattyboyo.github.io/CODERWHITE"
+	domain := "snap.com"
+	//var domain string
+	//fmt.Print("Enter a domain:")
+	//fmt.Scanf("%s", &domain)
 	url := "http://" + domain
 	// screw security ^^
 	_, err := evaluateDomain(url)
