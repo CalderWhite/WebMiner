@@ -1,2 +1,2 @@
 # WebMiner
-MINE THE WEB
+Summarizes websites.... better and faster. (scraping projects)
