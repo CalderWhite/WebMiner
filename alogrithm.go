@@ -1,4 +1,4 @@
-package main
+package WebMiner
 
 import (
 	"data"
@@ -102,7 +102,7 @@ func getHeaders(tree **html.Node) []string {
 	}
 	return keywords
 }
-func getKeywords(tree **html.Node) []string {
+func GetKeywords(tree **html.Node) []string {
 	// step 1: title?
 	title, found := scrape.Find(*tree, scrape.ByTag(atom.Title))
 	keywords := []string{}
@@ -193,7 +193,7 @@ func smart_split(text string) []string {
 	}
 	return split
 }
-func digestTree(tree *html.Node) []string {
+func DigestTree(tree *html.Node) []string {
 	// remove <script> and <style> tags
 	scriptz := scrape.FindAll(tree, scrape.ByTag(atom.Script))
 	for node := 0; node < len(scriptz); node++ {
@@ -290,7 +290,7 @@ func findTagLine(keywords []string, phrases []string) string {
 	}
 	return tp
 }
-func evaluateDomain(url string) (string, error) {
+func EvaluateDomain(url string) (string, error) {
 	//t0 := time.Now()
 	//fmt.Println("Getting [" + url + "]...")
 	resp, err := http.Get(url)
@@ -306,11 +306,11 @@ func evaluateDomain(url string) (string, error) {
 	resp.Body.Close()
 	// begin algorithm
 	// use pointers to maximize effieciency
-	keywords := getKeywords(&tree)
+	keywords := GetKeywords(&tree)
 	if len(keywords) < 1 {
 		return "", nil
 	}
-	phrases := digestTree(tree)
+	phrases := DigestTree(tree)
 	//for i := 0; i < len(phrases); i++ {
 	//	fmt.Println("{{" + phrases[i] + "}}")
 	//}
@@ -333,7 +333,7 @@ func test() {
 	fmt.Scanf("%s", &domain)
 	url := "http://" + domain
 	// screw security ^^
-	def, err := evaluateDomain(url)
+	def, err := EvaluateDomain(url)
 	if err != nil {
 		fmt.Println("error")
 		return
