@@ -1,8 +1,8 @@
 package WebMiner
 
 import (
-	"data"
 	"fmt"
+	"github.com/CalderWhite/WebMiner/data"
 	"github.com/yhat/scrape"
 	"golang.org/x/net/html"
 	"golang.org/x/net/html/atom"
@@ -325,7 +325,7 @@ func EvaluateDomain(url string) (string, error) {
 	*/
 	return desc, nil
 }
-func test() {
+func Test() {
 	//domain := "pattyboyo.github.io/CODERWHITE"
 	//domain := "snap.com"
 	var domain string
@@ -338,10 +338,10 @@ func test() {
 		fmt.Println("error")
 		return
 	}
-	fmt.Printf("[%s]\n",def)
+	fmt.Printf("[%s]\n", def)
 }
 
 func main() {
 	fmt.Println("Running...")
-	test()
+	Test()
 }
