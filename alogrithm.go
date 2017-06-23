@@ -1,11 +1,11 @@
 package WebMiner
 
 import (
-	"data"
+	"src/data"
 	"fmt"
-	"github.com/yhat/scrape"
-	"golang.org/x/net/html"
-	"golang.org/x/net/html/atom"
+	"src/github.com/yhat/scrape"
+	"src/golang.org/x/net/html"
+	"src/golang.org/x/net/html/atom"
 	"net/http"
 	"strings"
 )
